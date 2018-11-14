@@ -1,5 +1,16 @@
 USE _;
 
+-- test _.is_trx_in_progress()
+CREATE TABLE t (x INT UNSIGNED NOT NULL) ENGINE InnoDB;
+START TRANSACTION;
+INSERT INTO t VALUES (1);
+SELECT 'Expect: 1' AS message;
+SELECT _.is_trx_in_progress();
+COMMIT;
+DROP TABLE t;
+SELECT 'Expect: 0' AS message;
+SELECT _.is_trx_in_progress();
+
 -- test _.get_current_trx_id()
 CREATE TABLE t (x INT UNSIGNED NOT NULL) ENGINE InnoDB;
 START TRANSACTION;

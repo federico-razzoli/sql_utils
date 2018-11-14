@@ -6,6 +6,20 @@ USE _;
 
 DELIMITER ||
 
+DROP FUNCTION IF EXISTS is_trx_in_progress;
+CREATE FUNCTION is_trx_in_progress()
+    RETURNS BOOL
+    NOT DETERMINISTIC
+    READS SQL DATA
+    COMMENT 'Return wether a transaction is in progress'
+BEGIN
+    RETURN EXISTS (
+        SELECT TRX_ID
+            FROM information_schema.INNODB_TRX
+            WHERE TRX_MYSQL_THREAD_ID = CONNECTION_ID()
+    );
+END ||
+
 DROP FUNCTION IF EXISTS get_current_trx_id;
 CREATE FUNCTION get_current_trx_id()
     RETURNS BIGINT UNSIGNED
