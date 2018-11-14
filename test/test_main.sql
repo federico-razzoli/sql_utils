@@ -1,5 +1,10 @@
 USE _;
 
+-- DROP/CREATE objects used for tests
+SELECT 'Possible warnings expected'  AS message;
+DROP TABLE IF EXISTS t;
+SELECT 'End of expected warnings'    AS message;
+
 -- test _.is_trx_in_progress()
 CREATE TABLE t (x INT UNSIGNED NOT NULL) ENGINE InnoDB;
 START TRANSACTION;
