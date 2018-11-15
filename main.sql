@@ -4,6 +4,12 @@
 CREATE DATABASE IF NOT EXISTS _;
 USE _;
 
+
+/*
+    Current Transaction
+    ===================
+*/
+
 DELIMITER ||
 
 DROP FUNCTION IF EXISTS is_trx_in_progress;
