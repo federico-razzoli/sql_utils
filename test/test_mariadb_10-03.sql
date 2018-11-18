@@ -25,15 +25,38 @@ SELECT
 ;
 DROP TABLE test_table;
 
--- test _.is_system_versioned()
-CREATE OR REPLACE TABLE _.not_sysver (x INT UNSIGNED NOT NULL) ENGINE InnoDB;
-CREATE OR REPLACE TABLE _.sysver     (x INT UNSIGNED NOT NULL) ENGINE InnoDB
+-- test _.is_system_versioned(), _.drop_system_versioning()
+-- test with implicit temporal columns
+CREATE OR REPLACE TABLE _.test_sysver (x INT UNSIGNED NOT NULL) ENGINE InnoDB
     WITH SYSTEM VERSIONING;
 SELECT
-    '0,1,<NULL>' AS 'expect',
-    _.is_system_versioned('_', 'not_sysver'),
-    _.is_system_versioned('_', 'sysver'),
+    '1,<NULL>' AS 'expect',
+    _.is_system_versioned('_', 'test_sysver'),
     _.is_system_versioned('_', 'not_exists')
 ;
-DROP TABLE _.not_sysver, _.sysver;
+CALL _.drop_system_versioning('_', 'test_sysver');
+SELECT
+    0 AS 'expect',
+    _.is_system_versioned('_', 'test_sysver')
+;
+-- test with explicitally defined temporal columns
+CREATE OR REPLACE TABLE _.test_sysver (
+    x INT UNSIGNED NOT NULL,
+    valid_from TIMESTAMP(6) GENERATED ALWAYS AS ROW START,
+    valid_to TIMESTAMP(6) GENERATED ALWAYS AS ROW END,
+    PERIOD FOR SYSTEM_TIME(valid_from, valid_to)
+)
+    ENGINE InnoDB
+    WITH SYSTEM VERSIONING
+;
+SELECT
+    1 AS 'expect',
+    _.is_system_versioned('_', 'test_sysver')
+;
+CALL _.drop_system_versioning('_', 'test_sysver');
+SELECT
+    0 AS 'expect',
+    _.is_system_versioned('_', 'test_sysver')
+;
+DROP TABLE _.test_sysver;
 

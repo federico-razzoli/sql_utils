@@ -17,7 +17,7 @@ CREATE PROCEDURE add_system_versioning(
 BEGIN
     DECLARE v_alter_table TEXT DEFAULT NULL;
     DECLARE v_type TEXT DEFAULT NULL;
-SET in_type := UPPER(in_type);
+    SET in_type := UPPER(in_type);
     IF in_type LIKE 'TIME%' THEN
         SET v_type := 'TIMESTAMP(6)';
     ELSEIF in_type IN ('TRX', 'TRANSACTION') THEN
@@ -30,6 +30,50 @@ SET in_type := UPPER(in_type);
         ADD PERIOD FOR SYSTEM_TIME(', in_start_column, ', ', in_end_column, '),
         ADD SYSTEM VERSIONING
     ;');
+    CALL run_sql(v_alter_table);
+END ||
+
+DROP PROCEDURE IF EXISTS drop_system_versioning;
+CREATE PROCEDURE drop_system_versioning(
+    in_database VARCHAR(64),
+    in_table VARCHAR(64)
+)
+    MODIFIES SQL DATA
+    COMMENT 'Make an existing table no more system-versioned'
+BEGIN
+    DECLARE v_start_column  VARCHAR(64) DEFAULT (
+        SELECT COLUMN_NAME
+            FROM information_schema.COLUMNS
+            WHERE
+                    GENERATION_EXPRESSION = 'ROW START'
+                AND TABLE_SCHEMA = in_database
+                AND TABLE_NAME = in_table
+    );
+    DECLARE v_end_column    VARCHAR(64) DEFAULT (
+        SELECT COLUMN_NAME
+            FROM information_schema.COLUMNS
+            WHERE
+                    GENERATION_EXPRESSION = 'ROW END'
+                AND TABLE_SCHEMA = in_database
+                AND TABLE_NAME = in_table
+    );
+    DECLARE v_alter_table TEXT DEFAULT NULL;
+    IF v_start_column IS NOT NULL THEN
+        -- the table has ROW START/END columns explicitally defined,
+        -- so they must be dropped explicitally
+        SET v_alter_table := CONCAT('
+            ALTER TABLE ', _.quote_name2(in_database, in_table), '
+                DROP COLUMN ',  v_start_column ,',
+                DROP COLUMN ',  v_end_column   ,',
+                DROP SYSTEM VERSIONING
+            ;');
+    ELSE
+        -- no explicit temporal columns, we use a simple DROP SYSTEM VERSIONING
+        SET v_alter_table := CONCAT('
+            ALTER TABLE ', _.quote_name2(in_database, in_table), '
+                DROP SYSTEM VERSIONING
+            ;');
+    END IF;
     CALL run_sql(v_alter_table);
 END ||
 
