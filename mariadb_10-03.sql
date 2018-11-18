@@ -33,5 +33,21 @@ SET in_type := UPPER(in_type);
     CALL run_sql(v_alter_table);
 END ||
 
+DROP FUNCTION IF EXISTS is_system_versioned;
+CREATE FUNCTION is_system_versioned(p_database VARCHAR(64), p_table VARCHAR(64))
+    RETURNS BOOL
+    NOT DETERMINISTIC
+    READS SQL DATA
+    COMMENT 'Return whether the specified table is system-versioned, NULL if it was not found'
+BEGIN
+    DECLARE r BOOL DEFAULT NULL;
+    SET r := (
+        SELECT TABLE_TYPE = 'SYSTEM VERSIONED'
+            FROM information_schema.TABLES
+            WHERE TABLE_SCHEMA = p_database AND TABLE_NAME = p_table
+    );
+    RETURN r;
+END ||
+
 DELIMITER ;
 
