@@ -12,6 +12,46 @@ USE _;
 
 DELIMITER ||
 
+DROP FUNCTION IF EXISTS quote_name;
+CREATE FUNCTION quote_name(p_name VARCHAR(64))
+    RETURNS TEXT
+    DETERMINISTIC
+    CONTAINS SQL
+    COMMENT 'Return specified name quoted with backticks and escaped'
+BEGIN
+    RETURN CONCAT('`', REPLACE(p_name, '`', '``'), '`');
+END ||
+
+DROP FUNCTION IF EXISTS quote_name2;
+CREATE FUNCTION quote_name2(p_name1 VARCHAR(64), p_name2 VARCHAR(64))
+    RETURNS TEXT
+    DETERMINISTIC
+    CONTAINS SQL
+    COMMENT 'Return specified FQN quoted with backticks and escaped'
+BEGIN
+    RETURN CONCAT(
+        '`', REPLACE(p_name1, '`', '``'), '`',
+        '.',
+        '`', REPLACE(p_name2, '`', '``'), '`'
+    );
+END ||
+
+DROP FUNCTION IF EXISTS quote_name3;
+CREATE FUNCTION quote_name3(p_name1 VARCHAR(64), p_name2 VARCHAR(64), p_name3 VARCHAR(64))
+    RETURNS TEXT
+    DETERMINISTIC
+    CONTAINS SQL
+    COMMENT 'Return specified FQN quoted with backticks and escaped'
+BEGIN
+    RETURN CONCAT(
+        '`', REPLACE(p_name1, '`', '``'), '`',
+        '.',
+        '`', REPLACE(p_name2, '`', '``'), '`'
+        '.',
+        '`', REPLACE(p_name3, '`', '``'), '`'
+    );
+END ||
+
 DROP PROCEDURE IF EXISTS run_sql;
 CREATE PROCEDURE run_sql(IN in_sql TEXT)
     MODIFIES SQL DATA

@@ -5,6 +5,62 @@ SELECT 'Possible warnings expected'  AS message;
 DROP TABLE IF EXISTS t;
 SELECT 'End of expected warnings'    AS message;
 
+-- test _.quote_name()
+SELECT
+    '`a``b`' AS expect,
+    _.quote_name('a`b')
+        AS result
+;
+SELECT
+    '<NULL>' AS expect,
+    _.quote_name(NULL)
+        AS result
+;
+
+-- test _.quote_name2()
+SELECT
+    '`a``b`.`c``d`' AS expect,
+    _.quote_name2('a`b', 'c`d')
+        AS result
+;
+SELECT
+    '<NULL>' AS expect,
+    _.quote_name2(NULL, 'x')
+        AS result
+;
+SELECT
+    '<NULL>' AS expect,
+    _.quote_name2('x', NULL)
+        AS result
+;
+SELECT
+    '<NULL>' AS expect,
+    _.quote_name2(NULL, NULL)
+        AS result
+;
+
+-- test _.quote_name3()
+SELECT
+    '`a``b`.`c``d`.`e``f`' AS expect,
+    _.quote_name3('a`b', 'c`d', 'e`f')
+        AS result
+;
+SELECT
+    '<NULL>' AS expect,
+    _.quote_name3(NULL, 'x', 'x')
+        AS result
+;
+SELECT
+    '<NULL>' AS expect,
+    _.quote_name3('x', NULL, 'x')
+        AS result
+;
+SELECT
+    '<NULL>' AS expect,
+    _.quote_name3(NULL, NULL, 'x')
+        AS result
+;
+
 -- test _.run_sql()
 CREATE TABLE t (x INT UNSIGNED NOT NULL) ENGINE InnoDB;
 CALL _.run_sql('INSERT INTO t VALUES (24);');
