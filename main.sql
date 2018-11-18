@@ -6,6 +6,30 @@ USE _;
 
 
 /*
+    Generic Routines
+    ================
+*/
+
+DELIMITER ||
+
+DROP PROCEDURE IF EXISTS run_sql;
+CREATE PROCEDURE run_sql(IN in_sql TEXT)
+    MODIFIES SQL DATA
+    COMMENT 'Run specified SQL query. Cannot be called recursively'
+BEGIN
+    SET @_run_sql_sql = in_sql;
+    PREPARE _stmt_run_sql_sql FROM @_run_sql_sql;
+    
+    EXECUTE _stmt_run_sql_sql;
+
+    DEALLOCATE PREPARE _stmt_run_sql_sql;
+    SET @_run_sql_sql = NULL;
+END ||
+
+DELIMITER ;
+
+
+/*
     Current Transaction
     ===================
 */

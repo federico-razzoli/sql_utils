@@ -5,6 +5,12 @@ SELECT 'Possible warnings expected'  AS message;
 DROP TABLE IF EXISTS t;
 SELECT 'End of expected warnings'    AS message;
 
+-- test _.run_sql()
+CREATE TABLE t (x INT UNSIGNED NOT NULL) ENGINE InnoDB;
+CALL _.run_sql('INSERT INTO t VALUES (24);');
+SELECT 'Expect: 1' AS message;
+SELECT EXISTS (SELECT x FROM t WHERE x = 24);
+
 -- test _.is_trx_in_progress()
 CREATE TABLE t (x INT UNSIGNED NOT NULL) ENGINE InnoDB;
 START TRANSACTION;
