@@ -2,6 +2,11 @@
 
 USE _;
 
+/*
+    Temporal Tables
+    ===============
+*/
+
 DELIMITER ||
 
 DROP PROCEDURE IF EXISTS add_system_versioning;
