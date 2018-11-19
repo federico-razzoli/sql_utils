@@ -77,8 +77,8 @@ BEGIN
     CALL run_sql(v_alter_table);
 END ||
 
-DROP FUNCTION IF EXISTS is_system_versioned;
-CREATE FUNCTION is_system_versioned(p_database VARCHAR(64), p_table VARCHAR(64))
+DROP FUNCTION IF EXISTS is_temporal_table;
+CREATE FUNCTION is_temporal_table(p_database VARCHAR(64), p_table VARCHAR(64))
     RETURNS BOOL
     NOT DETERMINISTIC
     READS SQL DATA
@@ -91,6 +91,16 @@ BEGIN
             WHERE TABLE_SCHEMA = p_database AND TABLE_NAME = p_table
     );
     RETURN r;
+END ||
+
+DROP FUNCTION IF EXISTS is_system_versioned_table;
+CREATE FUNCTION is_system_versioned_table(p_database VARCHAR(64), p_table VARCHAR(64))
+    RETURNS BOOL
+    NOT DETERMINISTIC
+    READS SQL DATA
+    COMMENT 'Alias for is_temporal_table()'
+BEGIN
+    RETURN _.is_temporal_table(p_database, p_table);
 END ||
 
 DELIMITER ;
@@ -110,6 +120,8 @@ CREATE OR REPLACE VIEW TEMPORAL_TABLES AS
                 AND c.GENERATION_EXPRESSION = 'ROW START'
         WHERE t.TABLE_TYPE = 'SYSTEM VERSIONED'
 ;
+CREATE OR REPLACE VIEW SYSTEM_VERSIONED_TABLES AS
+    SELECT * FROM TEMPORAL_TABLES;
 
 -- A restriction of COLUMNS entity.
 -- We identify temporal columns from their generation expression.
