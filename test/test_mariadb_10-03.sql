@@ -60,3 +60,31 @@ SELECT
 ;
 DROP TABLE _.test_sysver;
 
+-- test _.TEMPORAL_TABLES
+-- Test the correctness of HAS_TEMPORAL_COLUMNS column.
+-- Implicitly, we will also test the table itself.
+CREATE OR REPLACE TABLE _.test_sysver (
+    x INT UNSIGNED NOT NULL,
+    valid_from TIMESTAMP(6) GENERATED ALWAYS AS ROW START,
+    valid_to TIMESTAMP(6) GENERATED ALWAYS AS ROW END,
+    PERIOD FOR SYSTEM_TIME(valid_from, valid_to)
+)
+    ENGINE InnoDB
+    WITH SYSTEM VERSIONING
+;
+SELECT
+    1 AS 'expect',
+    (SELECT HAS_TEMPORAL_COLUMNS
+        FROM _.TEMPORAL_TABLES
+        WHERE TABLE_SCHEMA = '_' AND TABLE_NAME = 'test_sysver')
+;
+CREATE OR REPLACE TABLE _.test_sysver (x INT UNSIGNED NOT NULL) ENGINE InnoDB
+    WITH SYSTEM VERSIONING;
+SELECT
+    0 AS 'expect',
+    (SELECT HAS_TEMPORAL_COLUMNS
+        FROM _.TEMPORAL_TABLES
+        WHERE TABLE_SCHEMA = '_' AND TABLE_NAME = 'test_sysver')
+;
+DROP TABLE _.test_sysver;
+

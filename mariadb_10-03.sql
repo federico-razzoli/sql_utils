@@ -95,3 +95,19 @@ END ||
 
 DELIMITER ;
 
+-- A restriction of the TABLES entity, with only temporal tables rows.
+-- A column is added to indicate if the table has explicit temporal
+-- columns defined.
+CREATE OR REPLACE VIEW TEMPORAL_TABLES AS
+    SELECT
+            t.*,
+            c.TABLE_NAME IS NOT NULL AS HAS_TEMPORAL_COLUMNS
+        FROM information_schema.TABLES t
+        LEFT JOIN information_schema.COLUMNS c
+            ON
+                    t.TABLE_SCHEMA = c.TABLE_SCHEMA
+                AND t.TABLE_NAME = c.TABLE_NAME
+                AND c.GENERATION_EXPRESSION = 'ROW START'
+        WHERE t.TABLE_TYPE = 'SYSTEM VERSIONED'
+;
+
