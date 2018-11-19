@@ -88,3 +88,20 @@ SELECT
 ;
 DROP TABLE _.test_sysver;
 
+-- test _.TEMPORAL_COLUMNS
+CREATE OR REPLACE TABLE _.test_sysver (
+    x INT UNSIGNED NOT NULL,
+    valid_from TIMESTAMP(6) GENERATED ALWAYS AS ROW START,
+    valid_to TIMESTAMP(6) GENERATED ALWAYS AS ROW END,
+    PERIOD FOR SYSTEM_TIME(valid_from, valid_to)
+)
+    ENGINE InnoDB
+    WITH SYSTEM VERSIONING
+;
+SELECT
+    2 AS 'expect',
+    (SELECT COUNT(*)
+        FROM _.TEMPORAL_COLUMNS
+        WHERE TABLE_SCHEMA = '_' AND TABLE_NAME = 'test_sysver')
+;
+

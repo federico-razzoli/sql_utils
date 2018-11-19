@@ -111,3 +111,11 @@ CREATE OR REPLACE VIEW TEMPORAL_TABLES AS
         WHERE t.TABLE_TYPE = 'SYSTEM VERSIONED'
 ;
 
+-- A restriction of COLUMNS entity.
+-- We identify temporal columns from their generation expression.
+CREATE OR REPLACE VIEW TEMPORAL_COLUMNS AS
+    SELECT *
+        FROM information_schema.COLUMNS
+        WHERE GENERATION_EXPRESSION IN ('ROW START', 'ROW END')
+;
+
